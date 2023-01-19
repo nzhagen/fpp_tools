@@ -25,33 +25,24 @@ We can see that some of the images do not contain fringes. While some FPP algori
 </table>
 
 The conventional FPP algorithm takes these four shifts and estimates the object bias $B$, modulation contrast $C$, and phase $\phi$ with
-$$
-\begin{align}
-    B &= \frac{I_0 + I_1 + I_2 + I_3}{4} \, , \\
-    C &= \frac{1}{2} \big[ (I_1 - I_3)^2 + (I_0 - I_2)^2 \big]^{1/2}
-    \phi &= \text{arctan} \Big( \frac{I_1 - I_3}{I_0 - I_2} \Big)
-\end{align}
-$$
+
+$B = \frac{1}{4} \big( I_0 + I_1 + I_2 + I_3 \big), \quad C = \frac{1}{2} \big[ (I_1 - I_3)^2 + (I_0 - I_2)^2 \big]^{1/2}, \qquad \phi = \mathrm{arctan} \Big( \frac{I_1 - I_3}{I_0 - I_2} \Big)$  
+
 The arctangent function will produce a **wrapped** phase. Once we unwrap this, we get a steadily increasing (or decreasing) function. When viewing a flat object, the unwrapped phi should be a tilted plane.
 
 If we take a sequence of images without an object, and then a second sequence with an object placed in front of the background, then the difference $\Delta \phi$ between these two phase images gives us the height $z$ of the object in units of radians.
 
 In order to translate the height in radians to a physical unit (such as mm), we use
-$$
-    z = \frac{\ell_0 \Delta \phi}{\Delta \phi - 2 \pi f_0 d}
-$$
-where $f_0$ is the spatial frequency of the fringes, $\ell_0$ is the distance from the camera to the object reference plane, and $d$ is distance between the projector and camera pupils. If we measure the fringe spacing from one peak to the next as 20.8{\:}mm, then the fringe spatial frequency will be $f_0 = 1 / 20.8{\:}mm = 0.048{\:}\text{mm}^{-1}$.
+$$z = \frac{L_0 \Delta \phi}{\Delta \phi - 2 \pi f_0 d}$$  
+where $f_0$ is the spatial frequency of the fringes, $L_0$ is the distance from the camera to the object reference plane, and $d$ is distance between the projector and camera pupils. If we measure the fringe spacing from one peak to the next as 20.8 mm, then the fringe spatial frequency will be $f_0 = 1 / 20.8 \mathrm{mm} = 0.048 \ \mathrm{mm}^{-1}$.
 
 ## Using fringe projection images with N phases
 
 The above algorithm for calculating $\phi$ assumed that we had 4 images with phase shifts equally spaced in 90deg intervals. A disadvantage of this is that if there is uncorrected nonlinearity in the intensity of the projector-camera system, then the estimated profile shows large ripples characteristics of this error. One easy way of reducing the ripple error, without actually having to calibrate the projector+camera, is to use a larger number of images, such as $N = 8$. In this case we need a different algorithm to estimate the bias, contrast, and wrapped phase:
-$$
-\begin{align}
-    B (x,y) &= \frac{1}{N} \sum I_n (x,y) \, , \\
-    C (x,y) &= \frac{2}{N} \bigg( \big[ \sum_n^{N-1} I_n (x,y) \sin (2 \pi n/N) \big]^2 + \big[ \sum_n^{N-1} I_n (x,y) \cos (2 \pi n/N) \big]^2 \bigg)^{1/2}
-    \phi (x,y) &= \text{arctan} \bigg( \frac{\sum_n^{N-1} I_n (x,y) \sin (2 \pi n / N)}{\sum_n^{N-1} I_n (x,y) \cos (2 \pi n / N)} \bigg)
-\end{align}
-$$
+
+$B (x,y) = \frac{1}{N} \sum I_n (x,y)$  
+$C (x,y) = \frac{2}{N} \bigg( \big[ \sum_n I_n (x,y) \sin (2 \pi n/N) \big]^2 + \big[ \sum_n I_n (x,y) \cos (2 \pi n/N) \big]^2 \bigg)^{1/2}$  
+$\phi (x,y) = \text{arctan} \bigg( \frac{\sum_n I_n (x,y) \sin (2 \pi n / N)}{\sum_n I_n (x,y) \cos (2 \pi n / N)} \bigg)$  
 
 ## Using fringe projection images with unknown phases
 
@@ -65,4 +56,4 @@ The script `fpp_unknown_shifts.py` gives an example of this algorithm, using the
 
 ## Using fringe projection N known but nonuniform phases
 
-This really just amounts to using the $\deltas$'s estimated from the step above, inserting them into the least-squares algorithm for estimating $\phi (x,y)$, and instead of iterating back and forth between the two, running the estimation function only once.
+This really just amounts to using the $\delta$'s estimated from the step above, inserting them into the least-squares algorithm for estimating $\phi (x,y)$, and instead of iterating back and forth between the two, running the estimation function only once.
