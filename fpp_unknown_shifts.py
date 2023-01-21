@@ -135,18 +135,31 @@ img2 = float32(imread('./figures/lens_crop_180.jpg'))
 img3 = float32(imread('./figures/lens_crop_270.jpg'))
 imagestack = dstack([img0, img1, img2, img3])
 (Nx,Ny,num_images) = imagestack.shape
+print('imagestack shape =', imagestack.shape)
 
 #(phi4_image, contrast4_image, bias4_image) = fpp_4frames(imagestack)
 (phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
 deltas -= deltas[0]
 
-print('true deltas [deg] =', array([0.0, 90.0, 180.0, 270.0]))
-print('est. deltas [deg] =', deltas*180.0/pi)
+print(f"est. deltas [deg] = {array2string(deltas*180.0/pi, formatter={'float': lambda x:f'{x:.2f}'}, separator=', ')}")
 
 plt.figure('img0')
-plt.imshow(img0)
+plt.imshow(imagestack[:,:,0])
 
 plt.figure('phi')
 plt.imshow(phi_image)
+
+## In the unwrapped phase image, make sure that the smallest phase is zero. If the phase is increasing, then we subtract the
+## smallest value. If decreasing, then we add the smallest value.
+unwrapped_phi = unwrap(phi_image)
+avg_gradient = mean(gradient(unwrapped_phi[:,Ny//2]))
+
+if (avg_gradient > 0.0):
+    unwrapped_phi += amax(unwrapped_phi)
+else:
+    unwrapped_phi -= amax(unwrapped_phi)
+
+plt.figure('phi_unwrapped')
+plt.imshow(unwrapped_phi)
 
 plt.show()
