@@ -6,6 +6,32 @@ from imageio import imread, imsave
 from glob import glob
 
 ## ==============================================================================================
+def generate_and_save_fringe_pattern(filebase, Nx, Ny, num_frames, num_fringes, gamma=1.0):
+    '''
+    filebase = the base of the filenames to save to
+    Nx = the height dimension in pixels
+    Ny = the width dimension in pixels
+    num_frames = how many fringe projection frames to use
+    num_fringes = how many fringes should appear inside each projection frame
+    gamma = the projector gamma value to use
+
+    Example
+    -------
+    generate_and_save_fringe_pattern(480, 640, 4, 12)
+    '''
+
+    for n in range(num_frames):
+        (proj_xcoord,proj_ycoord) = indices((Nx,Ny))
+        k = 2.0 * pi * num_fringes_across_image / Ny
+        phi_shift = 2.0 * pi * n / num_frames
+        fringe_pattern = pow(0.5 + 0.5*cos(k*proj_ycoord + phi_shift), gamma)
+        fringe_pattern_8bit = uint8(rint(255.0 * fringe_pattern / amax(fringe_pattern)))
+        filename = f'fringe_phi{int(phi_shift*180.0/pi):03}_gamma{int(gamma):1}.png'
+        imsave(filename, fringe_pattern_8bit)
+
+    return
+
+## ==============================================================================================
 def fpp_4frames(imagestack):
     image_1minus3 = imagestack[:,:,1] - imagestack[:,:,3]
     image_0minus2 = imagestack[:,:,0] - imagestack[:,:,2]
