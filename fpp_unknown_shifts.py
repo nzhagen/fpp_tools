@@ -67,6 +67,22 @@ def fpp_N_uniform_frames(imagestack):
     return(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
+def fpp_4_nonuniform_frames(imagestack, deltas):
+    (Nx,Ny,num_images) = imagestack.shape
+    if (len(deltas) != num_images):
+        raise ValueError('The number of phase shift deltas ({len(deltas)}) must equal the number of images ({num_images})!')
+
+    upper_term = (imagestack[:,:,0] - imagestack[:,:,2]) * (cos(deltas[1]) - cos(deltas[3]))
+    upper_term -= (imagestack[:,:,3] - imagestack[:,:,1]) * (cos(deltas[0]) - cos(deltas[2]))
+    lower_term = (imagestack[:,:,0] - imagestack[:,:,2]) * (sin(deltas[1]) - sin(deltas[3]))
+    lower_term -= (imagestack[:,:,3] - imagestack[:,:,1]) * (sin(deltas[0]) - sin(deltas[2]))
+
+    phi_image = arctan2(upper_term, lower_term)
+
+    ## At some point, I should sit down an calculate the corresponding formuylas for the bias and contrast.
+    return(phi_image) #(phi_image, contrast_image, bias_image)
+
+## ==============================================================================================
 def fpp_estimate_phi(imagestack, deltas):
     (Nx,Ny,num_images) = imagestack.shape
     phi_image = zeros((Nx,Ny), 'float32')
@@ -176,8 +192,8 @@ def fpp_estimate_deltas_and_phi(imagestack, eps=1.0E-3):
 ## ==============================================================================================
 ## ==============================================================================================
 
-#files = sort(glob('./figures/lens_crop*.jpg'))
-files = sort(glob('./figures/fringe_phi*.png'))
+files = sort(glob('./figures/lens_crop*.jpg'))
+#files = sort(glob('./figures/fringe_phi*.png'))
 
 ## Make a list of the images to use, and then convert the list into a Numpy array 3D image stack.
 imagestack = []
@@ -188,10 +204,12 @@ imagestack = dstack(imagestack)
 (Nx,Ny,num_images) = imagestack.shape
 print('imagestack shape =', imagestack.shape)
 
-#deltas = array([0.0, pi/2.0, pi, 3.0*pi/2.0])
+deltas = array([0.0, pi/2.0, pi, 3.0*pi/2.0])
 #(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
 #(phi_imageN, contrast_imageN, bias_imageN) = fpp_N_uniform_frames(imagestack)
-(phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
+(phi_image) = fpp_4_nonuniform_frames(imagestack, deltas)
+
+#(phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
 deltas -= deltas[0]
 
 print(f"est. deltas [deg] = {array2string(deltas*180.0/pi, formatter={'float': lambda x:f'{x:.2f}'}, separator=', ')}")
