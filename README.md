@@ -13,7 +13,7 @@ The set of images below show a conventional set of fringe projection images, usi
     </tr>
 </table>
 
-We can see that some of the images do not contain fringes. While some FPP algorithms can handle this without trouble, some cannot, and so one may want to crop the images down to the fringe-only region, such as shown here:
+We can see that some areas within the images do not contain fringes. While some FPP algorithms can handle this without trouble, some cannot. So, we crop the images down to the fringe-only region, such as shown here:
 
 <table style="width:100%">
     <tr>
@@ -28,7 +28,7 @@ The conventional FPP algorithm takes these four shifts and estimates the object 
 
 $B = \frac{1}{4} \big( I_0 + I_1 + I_2 + I_3 \big), \quad C = \frac{1}{2} \big[ (I_1 - I_3)^2 + (I_0 - I_2)^2 \big]^{1/2}, \qquad \phi = \mathrm{arctan} \Big( \frac{I_1 - I_3}{I_0 - I_2} \Big)$  
 
-The arctangent function will produce a **wrapped** phase. Once we unwrap this, we get a steadily increasing (or decreasing) function. When viewing a flat object, the unwrapped phi should be a tilted plane.
+The arctangent function will produce a **wrapped** phase. Once we unwrap this, we get a steadily increasing (or decreasing) function. When viewing a flat object, the unwrapped phi should be a tilted plane. This approach is calculated using the `fpp_4frames()` function.
 
 If we take a sequence of images without an object, and then a second sequence with an object placed in front of the background, then the difference $\Delta \phi$ between these two phase images gives us the height $z$ of the object in units of radians.
 
@@ -36,7 +36,7 @@ In order to translate the height in radians to a physical unit (such as mm), we 
 $$z = \frac{L_0 \Delta \phi}{\Delta \phi - 2 \pi f_0 d}$$  
 where $f_0$ is the spatial frequency of the fringes, $L_0$ is the distance from the camera to the object reference plane, and $d$ is distance between the projector and camera pupils. If we measure the fringe spacing from one peak to the next as 20.8 mm, then the fringe spatial frequency will be $f_0 = 1 / 20.8 \mathrm{mm} = 0.048 \ \mathrm{mm}^{-1}$.
 
-## Using fringe projection images with N phases
+## Using fringe projection images with N uniformly-spaced phases
 
 The above algorithm for calculating $\phi$ assumed that we had 4 images with phase shifts equally spaced in 90deg intervals. A disadvantage of this is that if there is uncorrected nonlinearity in the intensity of the projector-camera system, then the estimated profile shows large ripples characteristics of this error. One easy way of reducing the ripple error, without actually having to calibrate the projector+camera, is to use a larger number of images, such as $N = 8$. In this case we need a different algorithm to estimate the bias, contrast, and wrapped phase:
 

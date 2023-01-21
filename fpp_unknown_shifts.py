@@ -50,6 +50,26 @@ def fpp_4_uniform_frames(imagestack):
     return(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
+def fpp_N_uniform_frames(imagestack):
+    (Nx,Ny,num_images) = imagestack.shape
+    bias_image = (1.0 / num_images) * sum(imagestack, axis=2)
+
+    ## The first and second terms are used to calculate both the contrast and phi images.
+    first_term = 0.0
+    second_term = imagestack[:,:,0]
+    for n in range(1,num_images):
+        first_term += imagestack[:,:,n] * sin(2.0 * pi * n / num_images)
+        second_term += imagestack[:,:,n] * cos(2.0 * pi * n / num_images)
+
+    okay = (abs(second_term) > 1.0e-7)
+    contrast_image = (2.0 / num_images) * sqrt(first_term**2 + second_term**2)
+
+    phi_image = zeros_like(bias_image)
+    phi_image[okay] = arctan2(first_term[okay], second_term[okay])
+
+    return(phi_image, contrast_image, bias_image)
+
+## ==============================================================================================
 def fpp_estimate_phi(imagestack, deltas):
     (Nx,Ny,num_images) = imagestack.shape
     phi_image = zeros((Nx,Ny), 'float32')
@@ -172,6 +192,7 @@ imagestack = dstack(imagestack)
 print('imagestack shape =', imagestack.shape)
 
 #(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
+#(phi_imageN, contrast_imageN, bias_imageN) = fpp_N_uniform_frames(imagestack)
 (phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
 deltas -= deltas[0]
 
