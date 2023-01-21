@@ -44,7 +44,17 @@ $B (x,y) = \frac{1}{N} \sum I_n (x,y)$
 $C (x,y) = \frac{2}{N} \bigg( \big[ \sum_n I_n (x,y) \sin (2 \pi n/N) \big]^2 + \big[ \sum_n I_n (x,y) \cos (2 \pi n/N) \big]^2 \bigg)^{1/2}$  
 $\phi (x,y) = \text{arctan} \bigg( \frac{\sum_n I_n (x,y) \sin (2 \pi n / N)}{\sum_n I_n (x,y) \cos (2 \pi n / N)} \bigg)$  
 
-## Using fringe projection images with unknown phases
+## Using fringe projection images with 4 nonuniformly spaced phases
+
+A nice paper worked out how to generalize all of the FPP algorithms for nonunifom fringe spacing:
+
+>    G. A. Ayubi, C. D. Perciante, J. L. Flores, J. M. D. Martino, and J. A. Ferrari, "Generation of phase-shifting algorithms with N arbitrarily spaced phase-steps," Applied Optics 53:7168-7176 (2014).
+
+Before giving the algorithm in its most general form, I will give the calculation for 4 phases, which is easily verified against the standard 4-frame algorithm:
+
+$\phi (x,y) = \text{arctan} \bigg( \frac{(I_1 - I_3) [\cos \delta_2 - \cos \delta_4] - (I_4 - I_2) [\cos \delta_1 - \cos \delta_3]}{(I_1 - I_3) [\sin \delta_2 - \sin \delta_4] - (I_4 - I_2) [\sin \delta_1 - \sin \delta_3]} \bigg)$  
+
+## Using fringe projection images with N unknown phases
 
 To further generalize this, what if we are doing FPP but don't actually know the phase relationships from the projector. Believe it or not, this is actually an important case for our research. There is a clever way of doing this developed in
 
