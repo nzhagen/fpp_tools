@@ -42,7 +42,7 @@ The above algorithm for calculating $\phi$ assumed that we had 4 images with pha
 
 $B (x,y) = \frac{1}{N} \sum I_n (x,y)$  
 $C (x,y) = \frac{2}{N} \bigg( \big[ \sum_n I_n (x,y) \sin (2 \pi n/N) \big]^2 + \big[ \sum_n I_n (x,y) \cos (2 \pi n/N) \big]^2 \bigg)^{1/2}$  
-$\phi (x,y) = \text{arctan} \bigg( \frac{\sum_n I_n (x,y) \sin (2 \pi n / N)}{\sum_n I_n (x,y) \cos (2 \pi n / N)} \bigg)$  
+$\phi (x,y) = \text{arctan} \Big( \frac{\sum_n I_n (x,y) \sin (2 \pi n / N)}{\sum_n I_n (x,y) \cos (2 \pi n / N)} \Big)$  
 
 ## Using fringe projection images with 4 nonuniformly spaced phases
 
@@ -52,7 +52,7 @@ A nice paper worked out how to generalize all of the FPP algorithms for nonunifo
 
 Before giving the algorithm in its most general form, I will give the calculation for 4 phases, which is easily verified against the standard 4-frame algorithm:
 
-$\phi (x,y) = \text{arctan} \bigg( \frac{(I_1 - I_3) [\cos \delta_2 - \cos \delta_4] - (I_4 - I_2) [\cos \delta_1 - \cos \delta_3]}{(I_1 - I_3) [\sin \delta_2 - \sin \delta_4] - (I_4 - I_2) [\sin \delta_1 - \sin \delta_3]} \bigg)$  
+$\phi (x,y) = \text{arctan} \Big( \frac{(I_0 - I_2) [\cos \delta_1 - \cos \delta_3] - (I_3 - I_1) [\cos \delta_0 - \cos \delta_2]}{(I_0 - I_2) [\sin \delta_1 - \sin \delta_3] - (I_3 - I_1) [\sin \delta_0 - \sin \delta_2]} \Big)$  
 
 ## Using fringe projection images with N unknown phases
 
