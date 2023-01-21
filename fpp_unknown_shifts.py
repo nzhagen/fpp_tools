@@ -35,16 +35,16 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes, gam
     return
 
 ## ==============================================================================================
-def fpp_4frames(imagestack):
+def fpp_4_uniform_frames(imagestack):
     image_1minus3 = imagestack[:,:,1] - imagestack[:,:,3]
     image_0minus2 = imagestack[:,:,0] - imagestack[:,:,2]
 
     phi_image = zeros_like(image_1minus3)
     contrast_image = zeros_like(image_1minus3)
 
-    okay = (abs(image_0minus2) > 0.0)
+    okay = (abs(image_0minus2) > 1.0e-7)
     phi_image[okay] = arctan2(image_1minus3[okay], image_0minus2[okay])
-    contrast_image[okay] = 0.5 * sqrt(image_1minus3[okay]**2 + image_0minus2[okay]**2)
+    contrast_image = 0.5 * sqrt(image_1minus3**2 + image_0minus2**2)
     bias_image = 0.25 * sum(imagestack, axis=2)
 
     return(phi_image, contrast_image, bias_image)
@@ -171,7 +171,7 @@ imagestack = dstack(imagestack)
 (Nx,Ny,num_images) = imagestack.shape
 print('imagestack shape =', imagestack.shape)
 
-#(phi4_image, contrast4_image, bias4_image) = fpp_4frames(imagestack)
+#(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
 (phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
 deltas -= deltas[0]
 
