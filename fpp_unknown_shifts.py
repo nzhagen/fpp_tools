@@ -6,12 +6,12 @@ from imageio import imread, imsave
 from glob import glob
 
 ## ==============================================================================================
-def generate_and_save_fringe_pattern(filebase, Nx, Ny, num_frames, num_fringes, gamma=1.0):
+def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes, gamma=1.0):
     '''
     filebase = the base of the filenames to save to
     Nx = the height dimension in pixels
     Ny = the width dimension in pixels
-    num_frames = how many fringe projection frames to use
+    phases = a list of the phases (in radians) of the patterns to generate
     num_fringes = how many fringes should appear inside each projection frame
     gamma = the projector gamma value to use
 
@@ -20,13 +20,16 @@ def generate_and_save_fringe_pattern(filebase, Nx, Ny, num_frames, num_fringes, 
     generate_and_save_fringe_pattern(480, 640, 4, 12)
     '''
 
-    for n in range(num_frames):
+    for phase in phases:
         (proj_xcoord,proj_ycoord) = indices((Nx,Ny))
         k = 2.0 * pi * num_fringes_across_image / Ny
-        phi_shift = 2.0 * pi * n / num_frames
-        fringe_pattern = pow(0.5 + 0.5*cos(k*proj_ycoord + phi_shift), gamma)
+        fringe_pattern = pow(0.5 + 0.5*cos(k*proj_ycoord + phase), gamma)
         fringe_pattern_8bit = uint8(rint(255.0 * fringe_pattern / amax(fringe_pattern)))
-        filename = f'fringe_phi{int(phi_shift*180.0/pi):03}_gamma{int(gamma):1}.png'
+
+        if (gamma == 1.0):
+            filename = f'fringe_phi{int(phase*180.0/pi):03}.png'
+        else:
+            filename = f'fringe_phi{int(phase*180.0/pi):03}_gamma{int(gamma):1}.png'
         imsave(filename, fringe_pattern_8bit)
 
     return
