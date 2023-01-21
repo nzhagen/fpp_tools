@@ -3,6 +3,7 @@ from numpy.random import default_rng
 from numpy.linalg import inv
 import matplotlib.pyplot as plt
 from imageio import imread, imsave
+from glob import glob
 
 ## ==============================================================================================
 def fpp_4frames(imagestack):
@@ -129,11 +130,15 @@ def fpp_estimate_deltas_and_phi(imagestack, eps=1.0E-3):
 ## ==============================================================================================
 ## ==============================================================================================
 
-img0 = float32(imread('./figures/lens_crop_000.jpg'))
-img1 = float32(imread('./figures/lens_crop_090.jpg'))
-img2 = float32(imread('./figures/lens_crop_180.jpg'))
-img3 = float32(imread('./figures/lens_crop_270.jpg'))
-imagestack = dstack([img0, img1, img2, img3])
+#files = sort(glob('./figures/lens_crop*.jpg'))
+files = sort(glob('./figures/fringe_phi*.png'))
+
+## Make a list of the images to use, and then convert the list into a Numpy array 3D image stack.
+imagestack = []
+for file in files:
+    imagestack.append(float32(imread(file)))
+imagestack = dstack(imagestack)
+
 (Nx,Ny,num_images) = imagestack.shape
 print('imagestack shape =', imagestack.shape)
 
