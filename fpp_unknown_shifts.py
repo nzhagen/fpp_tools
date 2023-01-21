@@ -39,13 +39,13 @@ def fpp_4_uniform_frames(imagestack):
     image_1minus3 = imagestack[:,:,1] - imagestack[:,:,3]
     image_0minus2 = imagestack[:,:,0] - imagestack[:,:,2]
 
-    phi_image = zeros_like(image_1minus3)
-    contrast_image = zeros_like(image_1minus3)
-
-    okay = (abs(image_0minus2) > 1.0e-7)
-    phi_image[okay] = arctan2(image_1minus3[okay], image_0minus2[okay])
-    contrast_image = 0.5 * sqrt(image_1minus3**2 + image_0minus2**2)
     bias_image = 0.25 * sum(imagestack, axis=2)
+
+    contrast_image = zeros_like(image_1minus3)
+    contrast_image = 0.5 * sqrt(image_1minus3**2 + image_0minus2**2)
+
+    phi_image = full(image_1minus3.shape, NaN)  ## create an array of NaNs
+    phi_image = arctan2(image_1minus3, image_0minus2)
 
     return(phi_image, contrast_image, bias_image)
 
@@ -61,11 +61,8 @@ def fpp_N_uniform_frames(imagestack):
         first_term += imagestack[:,:,n] * sin(2.0 * pi * n / num_images)
         second_term += imagestack[:,:,n] * cos(2.0 * pi * n / num_images)
 
-    okay = (abs(second_term) > 1.0e-7)
     contrast_image = (2.0 / num_images) * sqrt(first_term**2 + second_term**2)
-
-    phi_image = zeros_like(bias_image)
-    phi_image[okay] = arctan2(first_term[okay], second_term[okay])
+    phi_image = arctan2(first_term, second_term)
 
     return(phi_image, contrast_image, bias_image)
 
@@ -191,6 +188,7 @@ imagestack = dstack(imagestack)
 (Nx,Ny,num_images) = imagestack.shape
 print('imagestack shape =', imagestack.shape)
 
+#deltas = array([0.0, pi/2.0, pi, 3.0*pi/2.0])
 #(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
 #(phi_imageN, contrast_imageN, bias_imageN) = fpp_N_uniform_frames(imagestack)
 (phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
