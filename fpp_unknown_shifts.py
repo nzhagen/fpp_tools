@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from imageio import imread, imsave
 
 ## ==============================================================================================
-def fpp_estimate_phi_4frames(imagestack):
+def fpp_4frames(imagestack):
     image_1minus3 = imagestack[:,:,1] - imagestack[:,:,3]
     image_0minus2 = imagestack[:,:,0] - imagestack[:,:,2]
 
@@ -136,7 +136,7 @@ img3 = float32(imread('./figures/lens_crop_270.jpg'))
 imagestack = dstack([img0, img1, img2, img3])
 (Nx,Ny,num_images) = imagestack.shape
 
-#(phi_image4, contrast4_image, bias4_image) = fpp_estimate_phi_4frames(imagestack)
+#(phi4_image, contrast4_image, bias4_image) = fpp_4frames(imagestack)
 (phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
 deltas -= deltas[0]
 
