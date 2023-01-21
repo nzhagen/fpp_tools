@@ -113,8 +113,8 @@ def fpp_N_nonuniform_frames(imagestack, deltas):
 def fpp_estimate_phi(imagestack, deltas):
     (Nx,Ny,num_images) = imagestack.shape
     phi_image = zeros((Nx,Ny), 'float32')
-    H = zeros((3,3), 'float32')
-    G = zeros((3,Ny), 'float32')
+    A = zeros((3,3), 'float32')
+    B = zeros((3,Ny), 'float32')
 
     c = cos(deltas)
     s = sin(deltas)
@@ -122,23 +122,23 @@ def fpp_estimate_phi(imagestack, deltas):
     cc = sum(c**2)
     ss = sum(s**2)
 
-    H[0,0] = num_images
-    H[0,1] = sum(c)
-    H[0,2] = sum(s)
+    A[0,0] = num_images
+    A[0,1] = sum(c)
+    A[0,2] = sum(s)
 
-    H[1,0] = H[0,1]
-    H[1,1] = cc
-    H[1,2] = cs
+    A[1,0] = A[0,1]
+    A[1,1] = cc
+    A[1,2] = cs
 
-    H[2,0] = H[0,2]
-    H[2,1] = cs
-    H[2,2] = ss
+    A[2,0] = A[0,2]
+    A[2,1] = cs
+    A[2,2] = ss
 
-    G0 = sum(imagestack, axis=2)
-    G1 = sum(imagestack * c, axis=2)
-    G2 = sum(imagestack * s, axis=2)
-    G = dstack([G0, G1, G2])[:,:,:,newaxis]
-    X = squeeze(dot(inv(H),G))
+    B0 = sum(imagestack, axis=2)
+    B1 = sum(imagestack * c, axis=2)
+    B2 = sum(imagestack * s, axis=2)
+    B = dstack([B0, B1, B2])[:,:,:,newaxis]
+    X = squeeze(dot(inv(A),B))
     phi_image = arctan2(-X[2,:], X[1,:])
     bias_image = X[0,:]
     contrast_image = sqrt(X[1,:]**2 + X[2,:]**2)
@@ -150,11 +150,11 @@ def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
     ## If you want to use only a small portion of the image to estimate the deltas, then make "xmax" a small number.
     ## If you want to use the entire image to estimate the deltas, then use xmax=None
     (Nx,Ny,num_images) = imagestack.shape
-    Hprime = zeros((3,3), 'float32')
-    Gprime = zeros((3,num_images), 'float32')
+    Aprime = zeros((3,3), 'float32')
+    Bprime = zeros((3,num_images), 'float32')
     delta_vectors = zeros((num_images,nrows))
 
-    Hprime[0,0] = Ny
+    Aprime[0,0] = Ny
 
     c = cos(phi_image)
     s = sin(phi_image)
@@ -162,9 +162,9 @@ def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
     cc = c**2
     ss = s**2
 
-    Gprime[0,:] = sum(imagestack, axis=(0,1))
-    Gprime[1,:] = sum(imagestack * c[:,:,newaxis], axis=(0,1))
-    Gprime[2,:] = sum(imagestack * s[:,:,newaxis], axis=(0,1))
+    Bprime[0,:] = sum(imagestack, axis=(0,1))
+    Bprime[1,:] = sum(imagestack * c[:,:,newaxis], axis=(0,1))
+    Bprime[2,:] = sum(imagestack * s[:,:,newaxis], axis=(0,1))
 
     ## Do the estimate separately for each row in the image, for a total of nrows. Then take the average.
     ## After a good deal of poking around, I still can't find out why the algorithm behaves so much better
@@ -178,18 +178,18 @@ def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
         cx_sx = sum(cs[x,:])
         sx_sx = sum(ss[x,:])
 
-        Hprime[0,1] = cx
-        Hprime[0,2] = sx
+        Aprime[0,1] = cx
+        Aprime[0,2] = sx
 
-        Hprime[1,0] = cx
-        Hprime[1,1] = cx_cx
-        Hprime[1,2] = cx_sx
+        Aprime[1,0] = cx
+        Aprime[1,1] = cx_cx
+        Aprime[1,2] = cx_sx
 
-        Hprime[2,0] = sx
-        Hprime[2,1] = cx_sx
-        Hprime[2,2] = sx_sx
+        Aprime[2,0] = sx
+        Aprime[2,1] = cx_sx
+        Aprime[2,2] = sx_sx
 
-        Xprime = dot(inv(Hprime), Gprime)
+        Xprime = dot(inv(Aprime), Bprime)
         deltas_estimated = arctan2(-Xprime[2,:], Xprime[1,:])
         delta_vectors[:,x] = deltas_estimated
 
