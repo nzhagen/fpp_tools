@@ -83,6 +83,33 @@ def fpp_4_nonuniform_frames(imagestack, deltas):
     return(phi_image) #(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
+def fpp_N_nonuniform_frames(imagestack, deltas):
+    (Nx,Ny,num_images) = imagestack.shape
+    if (len(deltas) != num_images):
+        raise ValueError('The number of phase shift deltas ({len(deltas)}) must equal the number of images ({num_images})!')
+
+    Iterm1 = zeros((Nx,Ny))
+    Iterm2 = zeros((Nx,Ny))
+    delta_term1 = 0.0
+    delta_term2 = 0.0
+    delta_term3 = 0.0
+    delta_term4 = 0.0
+
+    for n in range(num_images):
+        Iterm1 += imagestack[:,:,n] * sin(2.0 * pi * n / num_images)
+        Iterm2 += imagestack[:,:,n] * cos(2.0 * pi * n / num_images)
+        delta_term1 += cos(2.0 * pi * n / num_images) * cos(deltas[n])
+        delta_term2 += cos(2.0 * pi * n / num_images) * sin(deltas[n])
+        delta_term3 += sin(2.0 * pi * n / num_images) * cos(deltas[n])
+        delta_term4 += sin(2.0 * pi * n / num_images) * sin(deltas[n])
+
+    phi_image = arctan2((Iterm1 * delta_term1) - (Iterm2 * delta_term3),
+                        (Iterm1 * delta_term2) - (Iterm2 * delta_term4))
+
+    ## At some point, I should sit down an calculate the corresponding formuylas for the bias and contrast.
+    return(phi_image) #(phi_image, contrast_image, bias_image)
+
+## ==============================================================================================
 def fpp_estimate_phi(imagestack, deltas):
     (Nx,Ny,num_images) = imagestack.shape
     phi_image = zeros((Nx,Ny), 'float32')
@@ -207,7 +234,8 @@ print('imagestack shape =', imagestack.shape)
 deltas = array([0.0, pi/2.0, pi, 3.0*pi/2.0])
 #(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
 #(phi_imageN, contrast_imageN, bias_imageN) = fpp_N_uniform_frames(imagestack)
-(phi_image) = fpp_4_nonuniform_frames(imagestack, deltas)
+#(phi_image) = fpp_4_nonuniform_frames(imagestack, deltas)
+(phi_image) = fpp_N_nonuniform_frames(imagestack, deltas)
 
 #(phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
 deltas -= deltas[0]
