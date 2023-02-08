@@ -48,6 +48,21 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, 
 
 ## ==============================================================================================
 def fpp_4_uniform_frames(imagestack):
+    '''
+    Using four fringe-projection images, with the fringe phase steps in 90deg increments, estimate the phase of the
+    underlying object at each pixel in the image.
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The four images to use for estimating the phase phi.
+
+    Returns
+    -------
+    phi : 2D array of float32
+        The phases of the underlying object at each pixel in the images.
+    '''
+
     image_1minus3 = imagestack[:,:,1] - imagestack[:,:,3]
     image_0minus2 = imagestack[:,:,0] - imagestack[:,:,2]
 
@@ -63,6 +78,21 @@ def fpp_4_uniform_frames(imagestack):
 
 ## ==============================================================================================
 def fpp_N_uniform_frames(imagestack):
+    '''
+    Using N fringe-projection images, with the fringe phase steps in equal increments of 360deg / N, estimate the
+    phase of the underlying object at each pixel in the image.
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The N images to use for estimating the phase phi.
+
+    Returns
+    -------
+    phi : 2D array of float32
+        The phases of the underlying object at each pixel in the images.
+    '''
+
     (Nx,Ny,num_images) = imagestack.shape
     bias_image = (1.0 / num_images) * sum(imagestack, axis=2)
 
