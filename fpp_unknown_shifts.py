@@ -199,6 +199,30 @@ def fpp_N_nonuniform_frames(imagestack, deltas):
 
 ## ==============================================================================================
 def fpp_estimate_phi(imagestack, deltas):
+    '''
+    Using N fringe-projection images, use a least-squares approach to estimate the phase of the underlying object at
+    each pixel in the image. Unlike the conventional algorithm, these fringes need not have uniformly-spaced phase steps.
+    However, the phases ("deltas") need to be known. (This is an alternative but equivalent method to that used by
+    the function "fpp_N_nonuniform_frames()".
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The N images to use for estimating the phase phi.
+    deltas : list or array
+        The N phase values corresponding to each of the input images.
+
+    Returns
+    -------
+    phi : 2D array of float32
+        The phases of the underlying object at each pixel in the images.
+
+    Notes
+    -----
+    This algorithm is derived from Z. Wang and B. Han, "Advanced iterative algorithm for phase extraction of
+    randomly phase-shifted interferograms," Optics Letters 29: 1671–1674 (2004).
+    '''
+
     (Nx,Ny,num_images) = imagestack.shape
     phi_image = zeros((Nx,Ny), 'float32')
     A = zeros((3,3), 'float32')
@@ -235,6 +259,29 @@ def fpp_estimate_phi(imagestack, deltas):
 
 ## ==============================================================================================
 def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
+    '''
+    Using N fringe-projection images and a guess for the phase "phi" of the underlying object, use a least-squares
+    approach to estimate the phase shifts "deltas" for each of the N images. (This is an complementary algorithm to
+    the function "fpp_estimate_phi()".
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The N images to use for estimating the phase phi.
+    phi_image : ndarray of floats
+        The image giving the phase values of the object at each pixel.
+
+    Returns
+    -------
+    deltas : array of float32
+        The phase shift estimates for each of the input images in the image stack.
+
+    Notes
+    -----
+    This algorithm is derived from Z. Wang and B. Han, "Advanced iterative algorithm for phase extraction of
+    randomly phase-shifted interferograms," Optics Letters 29: 1671–1674 (2004).
+    '''
+
     ## If you want to use only a small portion of the image to estimate the deltas, then make "xmax" a small number.
     ## If you want to use the entire image to estimate the deltas, then use xmax=None
     (Nx,Ny,num_images) = imagestack.shape
@@ -287,10 +334,41 @@ def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
 
 ## ==============================================================================================
 def fpp_estimate_deltas_and_phi(imagestack, eps=1.0E-3):
+    '''
+    Using N fringe-projection images, with unknown phase shift values (deltas) and unknown object phase (phi), use an
+    iterative least-squares approach to estimate both the delta's and phi's.
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The N images to use for estimating the phase phi.
+    eps : float
+        The mean error value. If the estimated deltas change by less than this amount, we tell the iterative loop to exit.
+
+    Returns
+    -------
+    phi_image : array of float32
+        The underlying phase of the underlying object at each pixel.
+    contrast_image : array of float32
+        The modulation contrast (or modulation amplitude) at each pixel in the image
+    bias_image : array of float32
+        The bias value at each pixel in the image.
+    deltas : array of float32
+        The phase shift estimates for each of the input images in the image stack.
+
+    Notes
+    -----
+    This algorithm is derived from Z. Wang and B. Han, "Advanced iterative algorithm for phase extraction of
+    randomly phase-shifted interferograms," Optics Letters 29: 1671–1674 (2004).
+    '''
+
     (Nx,Ny,num_images) = imagestack.shape
+
+    ## Start with a random guess for the phase shift values.
     deltas = default_rng(seed=0).uniform(0.0, 2.0*pi, num_images)
     #deltas_estimated = arange(num_images) * 2.0 * pi / (num_images - 1.0)
-    niter = 10
+
+    niter = 12
 
     for k in range(niter):
         deltas_new = array(deltas)
