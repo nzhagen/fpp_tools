@@ -6,18 +6,30 @@ from imageio import imread, imsave
 from glob import glob
 
 ## ==============================================================================================
-def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes, gamma=1.0):
+def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, gamma=1.0):
     '''
-    filebase = the base of the filenames to save to
-    Nx = the height dimension in pixels
-    Ny = the width dimension in pixels
-    phases = a list of the phases (in radians) of the patterns to generate
-    num_fringes = how many fringes should appear inside each projection frame
-    gamma = the projector gamma value to use
+    Create images containing sinusoidal profiles, and saves them as PNG files. The files will be saved with the
+    filename pattern [filebase]###.png if using gamma=1, or [filebase]###_gamma##.png, where the two-digit number
+    after 'gamma' is the gamma value times 10.
+
+    Parameters
+    ----------
+    filebase : str
+        The base (folder + beginning of the filename) of the filenames to save to.
+    Nx : int
+        The image height dimension in pixels.
+    Ny : int
+        The image width dimension in pixels.
+    phases : list or array of floats
+        The list of the phases (in radians) of the patterns to generate.
+    num_fringes : float
+        How many fringes should appear inside each projection frame.
+    gamma : float
+        The gamma value to use for nonlinear conversion of the sinusoid profile.
 
     Example
     -------
-    generate_and_save_fringe_pattern(480, 640, 4, 12)
+    generate_and_save_fringe_pattern('fringe_phi', 480, 640, 4, 12)
     '''
 
     for phase in phases:
@@ -27,9 +39,9 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes, gam
         fringe_pattern_8bit = uint8(rint(255.0 * fringe_pattern / amax(fringe_pattern)))
 
         if (gamma == 1.0):
-            filename = f'fringe_phi{int(phase*180.0/pi):03}.png'
+            filename = f'{filebase}{int(phase*180.0/pi):03}.png'
         else:
-            filename = f'fringe_phi{int(phase*180.0/pi):03}_gamma{int(gamma):1}.png'
+            filename = f'{filebase}{int(phase*180.0/pi):03}_gamma{int(10.0*gamma):2}.png'
         imsave(filename, fringe_pattern_8bit)
 
     return
