@@ -110,6 +110,29 @@ def fpp_N_uniform_frames(imagestack):
 
 ## ==============================================================================================
 def fpp_4_nonuniform_frames(imagestack, deltas):
+    '''
+    Using four fringe-projection images, estimate the phase of the underlying object at each pixel in the image.
+    Unlike the conventional algorithm, these fringes need not have uniformly-spaced phase steps. However, the
+    phases ("deltas") need to be known.
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The four images to use for estimating the phase phi.
+    deltas : list or array
+        The four phase values corresponding to each of the four input images.
+
+    Returns
+    -------
+    phi : 2D array of float32
+        The phases of the underlying object at each pixel in the images.
+
+    Notes
+    -----
+    This algorithm is derived from Gastón A. Ayubi et al., "Generation of phase-shifting algorithms with $N$
+    arbitrarily spaced phase-steps," Applied Optics 53:7168-7176 (2014).
+    '''
+
     (Nx,Ny,num_images) = imagestack.shape
     if (len(deltas) != num_images):
         raise ValueError('The number of phase shift deltas ({len(deltas)}) must equal the number of images ({num_images})!')
@@ -126,6 +149,29 @@ def fpp_4_nonuniform_frames(imagestack, deltas):
 
 ## ==============================================================================================
 def fpp_N_nonuniform_frames(imagestack, deltas):
+    '''
+    Using N fringe-projection images, estimate the phase of the underlying object at each pixel in the image.
+    Unlike the conventional algorithm, these fringes need not have uniformly-spaced phase steps. However, the
+    phases ("deltas") need to be known.
+
+    Parameters
+    ----------
+    imagestack : list of images
+        The N images to use for estimating the phase phi.
+    deltas : list or array
+        The N phase values corresponding to each of the input images.
+
+    Returns
+    -------
+    phi : 2D array of float32
+        The phases of the underlying object at each pixel in the images.
+
+    Notes
+    -----
+    This algorithm is derived from Gastón A. Ayubi et al., "Generation of phase-shifting algorithms with $N$
+    arbitrarily spaced phase-steps," Applied Optics 53:7168-7176 (2014).
+    '''
+
     (Nx,Ny,num_images) = imagestack.shape
     if (len(deltas) != num_images):
         raise ValueError('The number of phase shift deltas ({len(deltas)}) must equal the number of images ({num_images})!')
