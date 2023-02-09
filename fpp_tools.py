@@ -1,9 +1,8 @@
+#!/usr/bin/env python
+
 from numpy import *
 from numpy.random import default_rng
 from numpy.linalg import inv
-import matplotlib.pyplot as plt
-from imageio import imread, imsave
-from glob import glob
 
 ## ==============================================================================================
 def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, gamma=1.0):
@@ -20,7 +19,7 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, 
         The image height dimension in pixels.
     Ny : int
         The image width dimension in pixels.
-    phases : list or array of floats
+    phases : list or array
         The list of the phases (in radians) of the patterns to generate.
     num_fringes : float
         How many fringes should appear inside each projection frame.
@@ -59,8 +58,8 @@ def fpp_4_uniform_frames(imagestack):
 
     Returns
     -------
-    phi : 2D array of float32
-        The phases of the underlying object at each pixel in the images.
+    phi : 2D array
+        The phases (in radians) of the underlying object at each pixel in the images.
     '''
 
     image_1minus3 = imagestack[:,:,1] - imagestack[:,:,3]
@@ -89,8 +88,8 @@ def fpp_N_uniform_frames(imagestack):
 
     Returns
     -------
-    phi : 2D array of float32
-        The phases of the underlying object at each pixel in the images.
+    phi : 2D array
+        The phases (in radians) of the underlying object at each pixel in the images.
     '''
 
     (Nx,Ny,num_images) = imagestack.shape
@@ -120,12 +119,12 @@ def fpp_4_nonuniform_frames(imagestack, deltas):
     imagestack : list of images
         The four images to use for estimating the phase phi.
     deltas : list or array
-        The four phase values corresponding to each of the four input images.
+        The four phase values (in radians) corresponding to each of the four input images.
 
     Returns
     -------
-    phi : 2D array of float32
-        The phases of the underlying object at each pixel in the images.
+    phi : 2D array
+        The phases (in radians) of the underlying object at each pixel in the images.
 
     Notes
     -----
@@ -159,12 +158,12 @@ def fpp_N_nonuniform_frames(imagestack, deltas):
     imagestack : list of images
         The N images to use for estimating the phase phi.
     deltas : list or array
-        The N phase values corresponding to each of the input images.
+        The N phase values (in radians) corresponding to each of the input images.
 
     Returns
     -------
-    phi : 2D array of float32
-        The phases of the underlying object at each pixel in the images.
+    phi : 2D array
+        The phases (in radians) of the underlying object at each pixel in the images.
 
     Notes
     -----
@@ -210,12 +209,12 @@ def fpp_estimate_phi(imagestack, deltas):
     imagestack : list of images
         The N images to use for estimating the phase phi.
     deltas : list or array
-        The N phase values corresponding to each of the input images.
+        The N phase values (in radians) corresponding to each of the input images.
 
     Returns
     -------
-    phi : 2D array of float32
-        The phases of the underlying object at each pixel in the images.
+    phi : 2D array
+        The phases (in radians) of the underlying object at each pixel in the images.
 
     Notes
     -----
@@ -268,13 +267,13 @@ def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
     ----------
     imagestack : list of images
         The N images to use for estimating the phase phi.
-    phi_image : ndarray of floats
-        The image giving the phase values of the object at each pixel.
+    phi_image : ndarray
+        The image giving the phase values (in radians) of the object at each pixel.
 
     Returns
     -------
     deltas : array of float32
-        The phase shift estimates for each of the input images in the image stack.
+        The phase shift estimates (in radians) for each of the input images in the image stack.
 
     Notes
     -----
@@ -348,13 +347,13 @@ def fpp_estimate_deltas_and_phi(imagestack, eps=1.0E-3):
     Returns
     -------
     phi_image : array of float32
-        The underlying phase of the underlying object at each pixel.
+        The phase (in radians) of the underlying object at each pixel.
     contrast_image : array of float32
         The modulation contrast (or modulation amplitude) at each pixel in the image
     bias_image : array of float32
         The bias value at each pixel in the image.
-    deltas : array of float32
-        The phase shift estimates for each of the input images in the image stack.
+    deltas : array
+        The phase shift estimates (in radians) for each of the input images in the image stack.
 
     Notes
     -----
@@ -382,49 +381,3 @@ def fpp_estimate_deltas_and_phi(imagestack, eps=1.0E-3):
 
     return(phi_image, contrast_image, bias_image, deltas)
 
-## ==============================================================================================
-## ==============================================================================================
-
-files = sort(glob('./figures/lens_crop*.jpg'))
-#files = sort(glob('./figures/fringe_phi*.png'))
-
-## Make a list of the images to use, and then convert the list into a Numpy array 3D image stack.
-imagestack = []
-for file in files:
-    imagestack.append(float32(imread(file)))
-imagestack = dstack(imagestack)
-
-(Nx,Ny,num_images) = imagestack.shape
-print('imagestack shape =', imagestack.shape)
-
-deltas = array([0.0, pi/2.0, pi, 3.0*pi/2.0])
-#(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
-#(phi_imageN, contrast_imageN, bias_imageN) = fpp_N_uniform_frames(imagestack)
-#(phi_image) = fpp_4_nonuniform_frames(imagestack, deltas)
-(phi_image) = fpp_N_nonuniform_frames(imagestack, deltas)
-
-#(phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
-deltas -= deltas[0]
-
-print(f"est. deltas [deg] = {array2string(deltas*180.0/pi, formatter={'float': lambda x:f'{x:.2f}'}, separator=', ')}")
-
-plt.figure('img0')
-plt.imshow(imagestack[:,:,0])
-
-plt.figure('phi')
-plt.imshow(phi_image)
-
-## In the unwrapped phase image, make sure that the smallest phase is zero. If the phase is increasing, then we subtract the
-## smallest value. If decreasing, then we add the smallest value.
-unwrapped_phi = unwrap(phi_image)
-avg_gradient = mean(gradient(unwrapped_phi[:,Ny//2]))
-
-if (avg_gradient > 0.0):
-    unwrapped_phi += amax(unwrapped_phi)
-else:
-    unwrapped_phi -= amax(unwrapped_phi)
-
-plt.figure('phi_unwrapped')
-plt.imshow(unwrapped_phi)
-
-plt.show()
