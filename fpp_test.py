@@ -4,6 +4,7 @@ from numpy import *
 import matplotlib.pyplot as plt
 from imageio import imread, imsave
 from glob import glob
+import fpp_tools as fpp
 
 if __name__ == '__main__':
     files = sort(glob('./figures/lens_crop*.jpg'))
@@ -19,12 +20,12 @@ if __name__ == '__main__':
     print('imagestack shape =', imagestack.shape)
 
     deltas = array([0.0, pi/2.0, pi, 3.0*pi/2.0])
-    #(phi4_image, contrast4_image, bias4_image) = fpp_4_uniform_frames(imagestack)
-    #(phi_imageN, contrast_imageN, bias_imageN) = fpp_N_uniform_frames(imagestack)
-    #(phi_image) = fpp_4_nonuniform_frames(imagestack, deltas)
-    (phi_image) = fpp_N_nonuniform_frames(imagestack, deltas)
+    #(phi4_image, contrast4_image, bias4_image) = fpp.fpp_4_uniform_frames(imagestack)
+    #(phi_imageN, contrast_imageN, bias_imageN) = fpp.fpp_N_uniform_frames(imagestack)
+    #(phi_image) = fpp.fpp_4_nonuniform_frames(imagestack, deltas)
+    (phi_image) = fpp.fpp_N_nonuniform_frames(imagestack, deltas)
 
-    #(phi_image, contrast_image, bias_image, deltas) = fpp_estimate_deltas_and_phi(imagestack)
+    #(phi_image, contrast_image, bias_image, deltas) = fpp.fpp_estimate_deltas_and_phi(imagestack)
     deltas -= deltas[0]
 
     print(f"est. deltas [deg] = {array2string(deltas*180.0/pi, formatter={'float': lambda x:f'{x:.2f}'}, separator=', ')}")
