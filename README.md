@@ -1,6 +1,6 @@
 # Fringe Projection Profilometry
 
-This repository contains a collection of tools for doing fringe projection profilometry (FPP) --- projecting sinusoidal fringes onto an object and observing the resulting pattern with a camera. By projecting a sequence of fringes with different phase shifts, and saving an image at each step, we can measure the height profile of the object.
+This repository contains a collection of tools (primarily in the file `fpp_tools.py`) for doing fringe projection profilometry (FPP) --- projecting sinusoidal fringes onto an object and observing the resulting pattern with a camera. By projecting a sequence of fringes with different phase shifts, and saving an image at each step, we can measure the height profile of the object.
 
 The set of images below show a conventional set of fringe projection images, using phase shift values of 0, 90, 180, and 270deg. We will call these images $I_0$, $I_1$, $I_2$, and $I_3$.
 
@@ -28,7 +28,7 @@ The conventional FPP algorithm takes these four shifts and estimates the object 
 
 $B = \frac{1}{4} \big( I_0 + I_1 + I_2 + I_3 \big), \quad C = \frac{1}{2} \big[ (I_1 - I_3)^2 + (I_0 - I_2)^2 \big]^{1/2}, \qquad \phi = \mathrm{arctan} \Big( \frac{I_1 - I_3}{I_0 - I_2} \Big)$  
 
-The arctangent function will produce a **wrapped** phase. Once we unwrap this, we get a steadily increasing (or decreasing) function. When viewing a flat object, the unwrapped phi should be a tilted plane. This approach is calculated using the `fpp_4frames()` function.
+The arctangent function will produce a **wrapped** phase. Once we unwrap this, we get a steadily increasing (or decreasing) function. When viewing a flat object, the unwrapped phi should be a tilted plane. This approach is calculated using the `fpp_4_uniform_frames()` function.
 
 If we take a sequence of images without an object, and then a second sequence with an object placed in front of the background, then the difference $\Delta \phi$ between these two phase images gives us the height $z$ of the object in units of radians.
 
@@ -44,6 +44,8 @@ $B (x,y) = \frac{1}{N} \sum I_n (x,y)$
 $C (x,y) = \frac{2}{N} \bigg( \big[ \sum_n I_n (x,y) \sin (2 \pi n/N) \big]^2 + \big[ \sum_n I_n (x,y) \cos (2 \pi n/N) \big]^2 \bigg)^{1/2}$  
 $\phi (x,y) = \text{arctan} \Big( \frac{\sum_n I_n (x,y) \sin (2 \pi n / N)}{\sum_n I_n (x,y) \cos (2 \pi n / N)} \Big)$  
 
+This approach is calculated using the `fpp_N_uniform_frames()` function.
+
 ## Using fringe projection images with 4 nonuniformly spaced phases
 
 A nice paper worked out how to generalize all of the FPP algorithms for nonunifom fringe spacing:
@@ -54,16 +56,18 @@ Before giving the algorithm in its most general form, I will give the calculatio
 
 $\phi (x,y) = \text{arctan} \Big( \frac{(I_0 - I_2) [\cos \delta_1 - \cos \delta_3] - (I_3 - I_1) [\cos \delta_0 - \cos \delta_2]}{(I_0 - I_2) [\sin \delta_1 - \sin \delta_3] - (I_3 - I_1) [\sin \delta_0 - \sin \delta_2]} \Big)$  
 
-## Using fringe projection images with N unknown phases
-
-To further generalize this, what if we are doing FPP but don't actually know the phase relationships from the projector. Believe it or not, this is actually an important case for our research. There is a clever way of doing this developed in
-
->    Zhaoyang Wang and Bongtae Han, "Advanced iterative algorithm for phase extraction of randomly phase-shifted interferograms," Optics Letters 29:1671-1674 (2004).
-
-The script `fpp_unknown_shifts.py` gives an example of this algorithm, using the above set of four images.
-
-
+This approach is calculated using the `fpp_4_nonuniform_frames()` function.
 
 ## Using fringe projection N known but nonuniform phases
 
-This really just amounts to using the $\delta$'s estimated from the step above, inserting them into the least-squares algorithm for estimating $\phi (x,y)$, and instead of iterating back and forth between the two, running the estimation function only once.
+This really just amounts to using the $\delta$'s estimated from the step above, inserting them into the least-squares algorithm for estimating $\phi (x,y)$, and instead of iterating back and forth between the two, running the estimation function only once. This approach is calculated using the `fpp_N_nonuniform_frames()` function.
+
+## Using fringe projection images with N unknown phases
+
+To further generalize this, what if we are doing FPP but don't actually know the phase relationships from the projector. There is a clever way of doing this developed in
+
+>    Zhaoyang Wang and Bongtae Han, "Advanced iterative algorithm for phase extraction of randomly phase-shifted interferograms," Optics Letters 29:1671-1674 (2004).
+
+The function `fpp_estimate_deltas_and_phi() ` gives an example of this algorithm.
+
+
