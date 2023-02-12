@@ -46,7 +46,7 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, 
     return
 
 ## ==============================================================================================
-def fpp_4_uniform_frames(imagestack):
+def estimate_phi_4_uniform_frames(imagestack):
     '''
     Using four fringe-projection images, with the fringe phase steps in 90deg increments, estimate the phase of the
     underlying object at each pixel in the image.
@@ -76,7 +76,7 @@ def fpp_4_uniform_frames(imagestack):
     return(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
-def fpp_N_uniform_frames(imagestack):
+def estimate_phi_N_uniform_frames(imagestack):
     '''
     Using N fringe-projection images, with the fringe phase steps in equal increments of 360deg / N, estimate the
     phase of the underlying object at each pixel in the image.
@@ -108,7 +108,7 @@ def fpp_N_uniform_frames(imagestack):
     return(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
-def fpp_4_nonuniform_frames(imagestack, deltas):
+def estimate_phi_4_nonuniform_frames(imagestack, deltas):
     '''
     Using four fringe-projection images, estimate the phase of the underlying object at each pixel in the image.
     Unlike the conventional algorithm, these fringes need not have uniformly-spaced phase steps. However, the
@@ -147,7 +147,7 @@ def fpp_4_nonuniform_frames(imagestack, deltas):
     return(phi_image) #(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
-def fpp_N_nonuniform_frames(imagestack, deltas):
+def estimate_phi_N_nonuniform_frames(imagestack, deltas):
     '''
     Using N fringe-projection images, estimate the phase of the underlying object at each pixel in the image.
     Unlike the conventional algorithm, these fringes need not have uniformly-spaced phase steps. However, the
@@ -197,7 +197,7 @@ def fpp_N_nonuniform_frames(imagestack, deltas):
     return(phi_image) #(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
-def fpp_estimate_phi(imagestack, deltas):
+def estimate_phi_lsq(imagestack, deltas):
     '''
     Using N fringe-projection images, use a least-squares approach to estimate the phase of the underlying object at
     each pixel in the image. Unlike the conventional algorithm, these fringes need not have uniformly-spaced phase steps.
@@ -257,7 +257,7 @@ def fpp_estimate_phi(imagestack, deltas):
     return(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
-def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
+def estimate_deltas_lsq(imagestack, phi_image, nrows=10):
     '''
     Using N fringe-projection images and a guess for the phase "phi" of the underlying object, use a least-squares
     approach to estimate the phase shifts "deltas" for each of the N images. (This is an complementary algorithm to
@@ -332,7 +332,7 @@ def fpp_estimate_deltas(imagestack, phi_image, nrows=10):
     return(deltas)
 
 ## ==============================================================================================
-def fpp_estimate_deltas_and_phi(imagestack, eps=1.0E-3):
+def estimate_deltas_and_phi_lsq(imagestack, eps=1.0E-3):
     '''
     Using N fringe-projection images, with unknown phase shift values (deltas) and unknown object phase (phi), use an
     iterative least-squares approach to estimate both the delta's and phi's.
