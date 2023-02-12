@@ -371,8 +371,8 @@ def estimate_deltas_and_phi_lsq(imagestack, eps=1.0E-3):
 
     for k in range(niter):
         deltas_new = array(deltas)
-        (phi_image, contrast_image, bias_image) = fpp_estimate_phi(imagestack, deltas_new)
-        deltas = fpp_estimate_deltas(imagestack, phi_image)
+        (phi_image, contrast_image, bias_image) = estimate_phi_lsq(imagestack, deltas_new)
+        deltas = estimate_deltas_lsq(imagestack, phi_image)
         epsilons = array(deltas - deltas_new)
         mean_epsilon = mean(abs(epsilons))
 
