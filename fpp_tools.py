@@ -143,7 +143,7 @@ def estimate_phi_4_nonuniform_frames(imagestack, deltas):
 
     phi_image = arctan2(upper_term, lower_term)
 
-    ## At some point, I should sit down an calculate the corresponding formuylas for the bias and contrast.
+    ## At some point, I should sit down and calculate the corresponding formulas for the bias and contrast.
     return(phi_image) #(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
@@ -193,7 +193,7 @@ def estimate_phi_N_nonuniform_frames(imagestack, deltas):
     phi_image = arctan2((Iterm1 * delta_term1) - (Iterm2 * delta_term3),
                         (Iterm1 * delta_term2) - (Iterm2 * delta_term4))
 
-    ## At some point, I should sit down an calculate the corresponding formuylas for the bias and contrast.
+    ## At some point, I should sit down and calculate the corresponding formulas for the bias and contrast.
     return(phi_image) #(phi_image, contrast_image, bias_image)
 
 ## ==============================================================================================
