@@ -33,7 +33,7 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, 
 
     for phase in phases:
         (proj_xcoord,proj_ycoord) = indices((Nx,Ny))
-        k = 2.0 * pi * num_fringes_across_image / Ny
+        k = 2.0 * pi * num_fringes / Ny
         fringe_pattern = pow(0.5 + 0.5*cos(k*proj_ycoord + phase), gamma)
         fringe_pattern_8bit = uint8(rint(255.0 * fringe_pattern / amax(fringe_pattern)))
 
