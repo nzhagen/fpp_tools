@@ -5,7 +5,7 @@ from numpy.random import default_rng
 from numpy.linalg import inv
 
 ## ==============================================================================================
-def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, gamma=1.0):
+def generate_fringe_patterns(Nx, Ny, phases, num_fringes=10, gamma=1.0, filebase=''):
     '''
     Create images containing sinusoidal profiles, and saves them as PNG files. The files will be saved with the
     filename pattern [filebase]###.png if using gamma=1, or [filebase]###_gamma##.png, where the two-digit number
@@ -13,8 +13,6 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, 
 
     Parameters
     ----------
-    filebase : str
-        The base (folder + beginning of the filename) of the filenames to save to.
     Nx : int
         The image height dimension in pixels.
     Ny : int
@@ -25,25 +23,35 @@ def generate_and_save_fringe_patterns(filebase, Nx, Ny, phases, num_fringes=10, 
         How many fringes should appear inside each projection frame.
     gamma : float
         The gamma value to use for nonlinear conversion of the sinusoid profile.
+    filebase : str
+        The base (folder + beginning of the filename) of the filenames to save to.
 
     Example
     -------
     generate_and_save_fringe_pattern('fringe_phi', 480, 640, 4, 12)
     '''
 
+    imagestack = []
+
     for phase in phases:
         (proj_xcoord,proj_ycoord) = indices((Nx,Ny))
         k = 2.0 * pi * num_fringes / Ny
         fringe_pattern = pow(0.5 + 0.5*cos(k*proj_ycoord + phase), gamma)
-        fringe_pattern_8bit = uint8(rint(255.0 * fringe_pattern / amax(fringe_pattern)))
+        fringe_pattern = 255.0 * fringe_pattern / amax(fringe_pattern)
 
-        if (gamma == 1.0):
-            filename = f'{filebase}{int(phase*180.0/pi):03}.png'
-        else:
-            filename = f'{filebase}{int(phase*180.0/pi):03}_gamma{int(10.0*gamma):2}.png'
-        imsave(filename, fringe_pattern_8bit)
+        if filebase:
+            fringe_pattern_8bit = uint8(rint(fringe_pattern))
+            if (gamma == 1.0):
+                filename = f'{filebase}{int(phase*180.0/pi):03}.png'
+            else:
+                filename = f'{filebase}{int(phase*180.0/pi):03}_gamma{int(10.0*gamma):2}.png'
+            imsave(filename, fringe_pattern_8bit)
 
-    return
+        imagestack.append(fringe_pattern)
+
+    imagestack = dstack(imagestack)
+
+    return(imagestack)
 
 ## ==============================================================================================
 def estimate_phi_4_uniform_frames(imagestack):
