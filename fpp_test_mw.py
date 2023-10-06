@@ -8,9 +8,9 @@ import fpp_tools as fpp
 
 order = 2       ## do the fitting to what order multiple of the main modulation frequency (use 1, 2, 3, or 4)
 noise = 0.04
-
-nphases = 6
-phases = arange(nphases) * 2.0 * pi / nphases
+#nphases = 6
+#phases = arange(nphases) * 2.0 * pi / nphases
+phases = [0.0, 15.0, 100.0, 130.0, 160.0, 200.0, 280.0, 310.0, 345.0]
 imagestack = fpp.generate_fringe_patterns(256, 256, phases, 15, gamma=1.5)
 
 ## Normalize the intensities so that the maximum is 1.

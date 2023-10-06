@@ -614,3 +614,56 @@ def estimate_deltas_and_phi_lsq(imagestack, eps=1.0E-3, order=1):
         return(phi_img, amplitude_img, bias_img, deltas)
     elif (order > 1):
         return(phi_img, amplitude_img, bias_img, gamma_img, deltas)
+
+## ==============================================================================================
+def calc_fringe_spacing_image(phi_img, midpoint_fringe_spacing, debug=False):
+    ## Estimate the fringe spacing at each pixel in the image. When a projector sends a pattern onto the object or 
+    ## background, the fringes farther away from the camera will be spaced out more widely. When converting from
+    ## delta-phi to depth z, this needs to be accounted for in order to estimate the heights correctly.
+    ## Optional argument 'midpoint_fringe_spacing': we need to know the nominal spacing at the midpoint of the
+    ## image. This algorithm then estimates the multiplicative change from the nominal value.
+
+    (Nx,Ny) = phi_img.shape
+    unwrapped_phi = unwrap(phi_img)
+
+    (xx,yy) = indices((Nx,Ny))
+    xvec = xx.flatten()
+    yvec = yy.flatten()
+
+    A = array([xvec*0+1, xvec, yvec, xvec**2, xvec*yvec, yvec**2, xvec**3, xvec**2*yvec, xvec*yvec**2, yvec**3, xvec**4, xvec**3*yvec, xvec**2*yvec**2, xvec*yvec**3, yvec**4]).T
+    B = unwrapped_phi.flatten()
+    (coeff, r, rank, s) = lstsq(A, B)
+    fit_surf = coeff[0]*ones_like(xx) + coeff[1]*xx + coeff[2]*yy + coeff[3]*xx**2 + coeff[4]*xx*yy + coeff[5]*yy**2 + coeff[6]*xx**3 + coeff[7]*xx**2*yy + coeff[8]*xx*yy**2 + coeff[9]*yy**3 + \
+                   coeff[10]*xx**4 + coeff[11]*xx**3*yy + coeff[12]*xx**2*yy**2 + coeff[13]*xx*yy**3 + coeff[14]*yy**4
+
+    calib_fringe_spacing = midpoint_fringe_spacing * gradient(fit_surf, axis=1) / mean(gradient(fit_surf, axis=1)[:,Ny//2])
+
+    if debug:
+        plt.figure('phi unwrapped')
+        plt.imshow(unwrapped_phi)
+        plt.colorbar()
+
+        phi_curve = unwrapped_phi[Nx//2,:]
+
+        plt.figure('phi unwrapped curve')
+        plt.plot(unwrapped_phi[Nx//2,:])
+
+        plt.figure('gradient(phi_unwrapped)')
+        plt.plot(gradient(unwrapped_phi[Nx//2,:]))
+
+        plt.figure('fitted surf')
+        plt.imshow(fit_surf)
+
+        plt.figure('fitted surf_curve')
+        plt.plot(fit_surf[Nx//2,:])
+
+        plt.figure('calibrated fringe spacings')
+        plt.imshow(calib_fringe_spacing)
+        plt.colorbar()
+
+        plt.figure('calibrated fringe spacings curve')
+        plt.plot(calib_fringe_spacing[Nx//2,:])
+        plt.show()
+
+    return(calib_fringe_spacing)
+
